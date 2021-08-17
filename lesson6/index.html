@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.socket.io/4.1.2/socket.io.min.js" integrity="sha384-toS6mmwu70G0fw54EGlWWeA4z3dyJ+dlXBtSURSKN4vyRFOcxd3Bzjj/AoOwY+Rg" crossorigin="anonymous"></script>
+  <!-- <script src="https://cdn.socket.io/3.1.1/socket.io.min.js" integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script> -->
+  <title>Document</title>
+</head>
+<body>
+
+  <style>
+    #info {
+      color: #189237;
+    }
+    input {
+      outline: none;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+
+  <div id="info"></div>
+  <input type="text" id="input" autofocus>
+  <button type="submit" id="send" value="Send">Send</button>
+  <div id="messages"></div>
+
+  <script type="text/javascript">
+    const socket = io('localhost:3000');
+
+    socket.on('connect', () => {
+      console.log('Successful connected to server');
+      console.log('Your id number is: ' + socket.id); 
+    });
+
+    // socket.on('CLIENT_DISCONNECTED', () => {
+    //   console.log('Client has been disconnected');
+    // });
+
+    socket.on('NEW_CLIENT_CONNECTED', () => {
+      console.log('New client has been connected');
+      const info = document.createElement('span');
+      const msg = 'New client has been connected';
+      info.innerHTML = msg;
+      document.querySelector('#info').append(info);
+      document.querySelector('#info').append(document.createElement('br'));
+
+      setTimeout(() => {
+        document.getElementById("info").innerHTML = '';
+      }, 3000);
+    });
+
+    socket.on('SERVER_MSG', data => {
+      const span = document.createElement('span');
+      span.innerHTML = data.message;
+      document.querySelector('#messages').append(span);
+      document.querySelector('#messages').append(document.createElement('br'));
+    });
+
+    document.querySelector('#send').onclick = () => {
+      const text = document.querySelector('#input').value;
+      socket.emit('CLIENT_MSG', {
+        message: text
+      })
+      document.querySelector('#input').value = '';
+    };
+
+  </script>
+
+</body>
+</html>
